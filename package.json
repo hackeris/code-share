@@ -1,12 +1,12 @@
 {
-  "name": "websocket-chat",
+  "name": "code share",
   "version": "1.0.0",
-  "description": "chat over websocket",
+  "description": "code share",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
-  "author": "",
+  "author": "hackeris",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.15.2",
@@ -15,7 +15,6 @@
     "express-session": "^1.14.1",
     "http": "0.0.0",
     "morgan": "^1.7.0",
-    "socket.io": "^1.4.8",
-    "uuid": "^2.0.3"
+    "socket.io": "^1.4.8"
   }
 }

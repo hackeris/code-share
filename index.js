@@ -7,7 +7,8 @@ var path = require('path');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 var session = require('express-session');
-var uuid = require('uuid');
+
+var config = require('./config/config.json');
 
 var app = express();
 
@@ -120,4 +121,4 @@ io.on('connection', function (client) {
   });
 });
 
-server.listen(3000);
+server.listen(config.PORT);
