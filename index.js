@@ -111,6 +111,7 @@ app.get('/code/:id', function (req, res) {
 io.on('connection', function (client) {
   client.on('code', function (code) {
     codeStore.broadcastCode(client.group, code);
+    client.emit('sent')
   });
   client.on('join', function (id) {
     client.group = id;

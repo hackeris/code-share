@@ -25,27 +25,31 @@
     var editor = ace.edit("editor");
     editor.$blockScrolling = Infinity;
 
-    var listenChange = true;
+    var codeUpdated = true;
+    var codeSent = true;
 
     var socket = io();
 
     socket.emit('join', '<%= group %>')
 
-    function onChange() {
-        if (listenChange) {
+    socket.on('sent', function () {
+        codeSent = true;
+    });
+    editor.on('change', function () {
+        if (codeUpdated && codeSent) {
+            codeSent = false;
             var code = editor.getValue();
             socket.emit('code', code);
         }
-    }
-    editor.on('change', onChange);
+    });
 
     socket.on('code', function (code) {
-        listenChange = false;
+        codeUpdated = false;
         var pos = editor.getCursorPosition();
         editor.setValue(code);
         editor.moveCursorToPosition(pos);
         editor.clearSelection();
-        listenChange = true;
+        codeUpdated = true;
     });
 </script>
 </body>
