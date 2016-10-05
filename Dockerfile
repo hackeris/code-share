@@ -7,7 +7,6 @@ COPY package.json /usr/src/app/
 RUN npm install --registry=https://registry.npm.taobao.org
 
 COPY . /usr/src/app
-RUN npm run build
 
 EXPOSE 3000
 
