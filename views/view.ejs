@@ -24,23 +24,33 @@
             .container {
                 width: 100%;
             }
+
+            h3 {
+                font-size: 15px;
+                margin: 10px;
+            }
+        }
+
+        .CodeMirror {
+            min-height: 700px;
+            border-right: solid 1px #cccccc;
+            border-top: solid 1px #cccccc;
+            border-bottom: solid 1px #cccccc;
         }
     </style>
-    <link rel="stylesheet" href="/public/stylesheets/editor.css">
+    <link rel="stylesheet" href="/public/stylesheets/codemirror.css">
 </head>
 <body>
 
 <div class="container">
     <h3><span>房间编号：</span><span><%= group %></span></h3>
-    <div id="editor"><%= code %></div>
+    <textarea id="editor"><%= code %></textarea>
 </div>
 
 <script type="text/javascript" src="/public/javascripts/socket.io-1.4.5.js"></script>
-<script type="text/javascript" src="/public/javascripts/ace.js"></script>
-<script type="text/javascript">
+<script type="text/javascript" src="/public/javascripts/codemirror.js"></script>
 
-    var editor = ace.edit("editor");
-    editor.$blockScrolling = Infinity;
+<script type="text/javascript">
 
     var codeUpdated = true;
     var codeSent = true;
@@ -52,7 +62,12 @@
     socket.on('sent', function () {
         codeSent = true;
     });
-    editor.on('change', function () {
+
+    var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+        lineNumbers: true
+    });
+
+    CodeMirror.on(editor, 'change', function () {
         if (codeUpdated && codeSent) {
             codeSent = false;
             var code = editor.getValue();
@@ -62,10 +77,9 @@
 
     socket.on('code', function (code) {
         codeUpdated = false;
-        var pos = editor.getCursorPosition();
+        var cur = editor.getCursor();
         editor.setValue(code);
-        editor.moveCursorToPosition(pos);
-        editor.clearSelection();
+        editor.setCursor(cur);
         codeUpdated = true;
     });
 </script>
