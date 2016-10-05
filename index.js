@@ -7,6 +7,7 @@ var path = require('path');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var uuid = require('uuid');
 
 var config = require('./config/config.json');
 
@@ -79,11 +80,13 @@ var codeStore = {
       this.codes[id] = "";
     }
   },
-  broadcastCode: function (id, code) {
-    var clients = this.getClients(id);
-    this.codes[id] = code;
+  broadcastCode: function (client, code) {
+    var clients = this.getClients(client.group);
+    this.codes[client.group] = code;
     for (var i = 0; i < clients.length; i++) {
-      clients[i].emit("code", code);
+      if (clients[i].id != client.id) {
+        clients[i].emit("code", code);
+      }
     }
   },
   getCode: function (id) {
@@ -109,9 +112,10 @@ app.get('/code/:id', function (req, res) {
 });
 
 io.on('connection', function (client) {
+  client.id = uuid.v4();
   client.on('code', function (code) {
-    codeStore.broadcastCode(client.group, code);
-    client.emit('sent')
+    codeStore.broadcastCode(client, code);
+    client.emit('sent');
   });
   client.on('join', function (id) {
     client.group = id;
