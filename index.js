@@ -31,98 +31,45 @@ app.use(session({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-var codeStore = {
-  stores: {},
-  codes: {},
-  allocateId: function () {
-    function make4Rand() {
-      var result = "";
-      for (var i = 0; i < 4; i++) {
-        result += parseInt(Math.random() * 10);
-      }
-      return result;
-    }
-
-    var tries = 0;
-    do {
-      var rand = make4Rand();
-      tries++;
-    } while (this.stores[rand] && tries < 10);
-    return rand;
-  },
-  getClients: function (id) {
-    return this.stores[id];
-  },
-  addClient: function (id, client) {
-    if (!this.stores[id]) {
-      this.stores[id] = [];
-      this.codes [id] = "";
-    }
-    this.stores[id].push(client);
-  },
-  removeClient: function (id, client) {
-
-    function findIndex(arr, item) {
-      for (var i = 0; i < arr.length; i++) {
-        if (arr[i] === item) {
-          return i;
-        }
-      }
-      return -1;
-    }
-
-    if (this.stores[id]) {
-      var idx = findIndex(this.stores[id], client);
-      this.stores[id].splice(idx, 1);
-    }
-    if (this.stores[id] && this.stores[id].length == 0) {
-      delete this.stores[id];
-      this.codes[id] = "";
-    }
-  },
-  broadcastCode: function (client, code) {
-    var clients = this.getClients(client.group);
-    this.codes[client.group] = code;
-    for (var i = 0; i < clients.length; i++) {
-      if (clients[i].id != client.id) {
-        clients[i].emit("code", code);
-      }
-    }
-  },
-  getCode: function (id) {
-    return this.codes[id];
-  }
-};
+var CodeStore = require('./codestore');
+var codeStore = new CodeStore();
 
 app.get('/', function (req, res) {
   res.render('home.html');
 });
 
 app.get('/new', function (req, res) {
-  var id = codeStore.allocateId();
-  res.redirect('/code/' + id);
+  var room = codeStore.allocateRoomId();
+  res.redirect('/code/' + room);
 });
 
-app.get('/code/:id', function (req, res) {
-  var id = req.params.id;
-  res.render('view', {
-    group: id,
-    code: codeStore.getCode(id)
+app.get('/code/:room', function (req, res) {
+  var room = req.params.room;
+  if (codeStore.isActive(room)) {
+    res.render('view', {
+      group: room,
+      code: codeStore.getCode(room)
+    });
+  } else {
+    res.send('<h1>This room has been closed.</h1>');
+  }
+});
+
+var codeRoom = io.of('/code-room');
+codeRoom.on('connection', function (client) {
+  client.on('join', function (id) {
+    client.room = id;
+    codeStore.joinRoom(client.room);
+    client.join(id);
   });
-});
-
-io.on('connection', function (client) {
-  client.id = uuid.v4();
   client.on('code', function (code) {
-    codeStore.broadcastCode(client, code);
+    codeStore.setCode(client.room, code);
+    client.to(client.room).emit('code', code);
     client.emit('sent');
   });
-  client.on('join', function (id) {
-    client.group = id;
-    codeStore.addClient(id, client);
-  });
   client.on('disconnect', function () {
-    codeStore.removeClient(client.group, client);
+    client.leave(client.room);
+    codeStore.leaveRoom(client.room);
   });
 });
 

@@ -55,7 +55,7 @@
     var codeUpdated = true;
     var codeSent = true;
 
-    var socket = io();
+    var socket = io('/code-room');
 
     socket.emit('join', '<%= group %>')
 
