@@ -136,7 +136,6 @@
             });
 
             socket.on('message', function (message) {
-                console.log(message);
                 this.messages.push(JSON.parse(message));
             }.bind(this));
 
