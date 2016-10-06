@@ -31,24 +31,36 @@ app.use(session({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-var CodeStore = require('./codestore');
-var codeStore = new CodeStore();
+var RoomStore = require('./roomstore');
+var roomStore = new RoomStore();
 
 app.get('/', function (req, res) {
   res.render('home.html');
 });
 
 app.get('/new', function (req, res) {
-  var room = codeStore.allocateRoomId();
-  res.redirect('/code/' + room);
+  var room = roomStore.allocateRoomId();
+  res.redirect('/view/' + room);
 });
 
 app.get('/code/:room', function (req, res) {
   var room = req.params.room;
-  if (codeStore.isActive(room)) {
-    res.render('view', {
-      group: room,
-      code: codeStore.getCode(room)
+  res.send({
+    code: roomStore.getCode(room)
+  });
+});
+
+app.get('/message/:room', function (req, res) {
+  var room = req.params.room;
+  res.send(roomStore.getMessages(room));
+});
+
+app.get('/view/:room', function (req, res) {
+  var room = req.params.room;
+  if (roomStore.isActive(room)) {
+    res.render('room', {
+      room: room,
+      code: roomStore.getCode(room)
     });
   } else {
     res.send('<h1>This room has been closed.</h1>');
@@ -57,19 +69,27 @@ app.get('/code/:room', function (req, res) {
 
 var codeRoom = io.of('/code-room');
 codeRoom.on('connection', function (client) {
-  client.on('join', function (id) {
-    client.room = id;
-    codeStore.joinRoom(client.room);
-    client.join(id);
+  client.id = uuid.v4();
+  client.emit('id', client.id);
+  client.on('join', function (room) {
+    client.room = room;
+    client.join(room);
+    roomStore.joinRoom(client.room);
   });
   client.on('code', function (code) {
-    codeStore.setCode(client.room, code);
+    roomStore.setCode(client.room, code);
     client.to(client.room).emit('code', code);
-    client.emit('sent');
+    client.emit('code sent');
+  });
+  client.on('message', function (message) {
+    roomStore.putMessage(client.id, client.room, message);
+    client.to(client.room).emit('message',
+      JSON.stringify({uid: client.id, message: message}));
+    client.emit('message sent');
   });
   client.on('disconnect', function () {
     client.leave(client.room);
-    codeStore.leaveRoom(client.room);
+    roomStore.leaveRoom(client.room);
   });
 });
 

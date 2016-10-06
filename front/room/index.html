@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>Code Room</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <link rel="stylesheet" href="/public/stylesheets/codemirror.css">
+</head>
+<body>
+
+<div id="app">
+    <room></room>
+</div>
+
+<script type="text/javascript">
+    var room = '<%= room %>';
+</script>
+
+<script type="text/javascript" src="/public/javascripts/socket.io-1.4.5.js"></script>
+<script type="text/javascript" src="/public/javascripts/codemirror.js"></script>
+
+</body>
+</html>

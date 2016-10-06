@@ -1,4 +1,4 @@
-class CodeStore {
+class RoomStore {
   constructor() {
     this._codeRoom = {};
   }
@@ -17,7 +17,7 @@ class CodeStore {
       var rand = make4Rand();
       tries++;
     } while (this._codeRoom[rand] && tries < 10);
-    this._codeRoom[rand] = {count: 0, code: ""};
+    this._codeRoom[rand] = {count: 0, code: "", messages: []};
     return rand;
   }
 
@@ -47,6 +47,17 @@ class CodeStore {
   getCode(room) {
     return this._codeRoom[room].code;
   }
+
+  putMessage(id, room, message) {
+    this._codeRoom[room].messages.push({
+      uid: id,
+      message: message
+    });
+  }
+
+  getMessages(room) {
+    return this._codeRoom[room].messages;
+  }
 }
 
-module.exports = CodeStore;
+module.exports = RoomStore;
