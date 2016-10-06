@@ -69,8 +69,8 @@ app.get('/view/:room', function (req, res) {
 
 var codeRoom = io.of('/code-room');
 codeRoom.on('connection', function (client) {
-  client.id = uuid.v4();
-  client.emit('id', client.id);
+  client.uid = uuid.v4();
+  client.emit('id', client.uid);
   client.on('join', function (room) {
     client.room = room;
     client.join(room);
@@ -82,9 +82,9 @@ codeRoom.on('connection', function (client) {
     client.emit('code sent');
   });
   client.on('message', function (message) {
-    roomStore.putMessage(client.id, client.room, message);
+    roomStore.putMessage(client.uid, client.room, message);
     client.to(client.room).emit('message',
-      JSON.stringify({uid: client.id, message: message}));
+      JSON.stringify({uid: client.uid, message: message}));
     client.emit('message sent');
   });
   client.on('disconnect', function () {
