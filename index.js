@@ -70,7 +70,7 @@ app.get('/view/:room', function (req, res) {
 var codeRoom = io.of('/code-room');
 codeRoom.on('connection', function (client) {
   client.uid = uuid.v4();
-  client.emit('id', client.uid);
+  client.emit('uid', client.uid);
   client.on('join', function (room) {
     client.room = room;
     client.join(room);

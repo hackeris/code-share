@@ -8,8 +8,8 @@
             <h3><span>消息：</span></h3>
             <ul>
                 <li v-for="message in messages">
-                    <p v-if="message.uid !== id">{{ message.message }}</p>
-                    <p v-if="message.uid === id" style="text-align: right;">{{ message.message }}</p>
+                    <p v-if="message.uid !== uid">{{ message.message }}</p>
+                    <p v-if="message.uid === uid" style="text-align: right;">{{ message.message }}</p>
                 </li>
             </ul>
             <div id="message">
@@ -96,7 +96,7 @@
             return {
                 room: "",
                 tempMessage: "",
-                id: "",
+                uid: "",
                 messages: []
             }
         },
@@ -124,8 +124,8 @@
 
             socket.emit('join', room);
 
-            socket.on('id', function (id) {
-                this.id = id;
+            socket.on('uid', function (uid) {
+                this.uid = uid;
             }.bind(this));
 
             socket.on('code sent', function () {
@@ -160,7 +160,7 @@
             submitMessage(){
                 this.socket.emit('message', this.tempMessage);
                 this.messages.push({
-                    uid: this.id,
+                    uid: this.uid,
                     message: this.tempMessage
                 });
                 this.tempMessage = "";
