@@ -1,14 +1,14 @@
 <template>
     <div id="room-container">
         <div id="code-container">
-            <h3><span>房间编号：</span><span>{{ room }}</span></h3>
+            <h3><span>{{ room }}</span><span>房间</span></h3>
             <textarea id="editor"></textarea>
             <button class="circle-button" id="show-message" @click="showMessage">
                 <img src="/public/images/ic_chat_black.png">
             </button>
         </div>
         <div id="message-container">
-            <h3><span>消息：</span></h3>
+            <h3><span>消息</span></h3>
             <ul id="message-list">
                 <li v-for="message in messages">
                     <div v-if="message.uid !== uid" class="message-left">
@@ -97,18 +97,21 @@
 
     .message-right > p, .message-left > p {
         line-height: 30px;
+        font-size: 18px;
         margin: 0 10px;
     }
 
     #new-message {
         padding: 0 5px;
-        height: 28px;
+        height: 38px;
         border-right: 1px solid #cccccc;
         border-bottom: 1px solid #cccccc;
     }
 
     #new-message > input {
-        height: 27px;
+        height: 35px;
+        line-height: 35px;
+        font-size: 18px;
         padding: 0;
         margin: 0;
         border-style: none;
@@ -155,7 +158,7 @@
         }
 
         h3 {
-            font-size: 15px;
+            font-size: 18px;
             margin: 10px;
         }
 
