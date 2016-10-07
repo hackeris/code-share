@@ -78,7 +78,7 @@
     </div>
     <div class="right">
         <div class="inner">
-            <input type="text" id="group" placeholder="房间编号">
+            <input type="text" id="room" placeholder="房间编号">
             <button onclick="onJoin()">加入</button>
         </div>
     </div>
@@ -91,8 +91,8 @@
     }
 
     function onJoin() {
-        var group = document.getElementById('group').value;
-        window.open("/code/" + group);
+        var room = document.getElementById('room').value;
+        window.open("/view/" + room);
     }
 </script>
 
