@@ -6,13 +6,20 @@
         </div>
         <div id="message-container">
             <h3><span>消息：</span></h3>
-            <ul>
+            <ul id="message-list">
                 <li v-for="message in messages">
-                    <p v-if="message.uid !== uid">{{ message.message }}</p>
-                    <p v-if="message.uid === uid" style="text-align: right;">{{ message.message }}</p>
+                    <div v-if="message.uid !== uid" class="message-left">
+                        <img width="30" height="30" v-bind:src="message.identicon"/>
+                        <p>{{ message.message }}</p>
+                    </div>
+
+                    <div v-if="message.uid === uid" class="message-right">
+                        <img width="30" height="30" v-bind:src="message.identicon"/>
+                        <p>{{ message.message }}</p>
+                    </div>
                 </li>
             </ul>
-            <div id="message">
+            <div id="new-message">
                 <input style="width: 100%;" v-model="tempMessage" v-on:keyup.13="submitMessage">
             </div>
         </div>
@@ -40,6 +47,10 @@
         margin: 20px;
     }
 
+    #message-list {
+        overflow: auto;
+    }
+
     ul {
         list-style: none;
         height: 670px;
@@ -50,12 +61,34 @@
         margin: 10px 20px;
     }
 
-    #message {
+    .message-left, .message-right {
+        display: flex;
+        width: 100%;
+    }
+
+    .message-right {
+        flex-direction: row-reverse;
+    }
+
+    .message-left > p, .message-left > img {
+        float: left;
+    }
+
+    .message-right > p, .message-right > img {
+        float: right;
+    }
+
+    .message-right > p, .message-left > p {
+        line-height: 30px;
+        margin: 0 10px;
+    }
+
+    #new-message {
         height: 28px;
         border: 1px solid #cccccc;
     }
 
-    #message > input {
+    #new-message > input {
         height: 27px;
         padding: 0;
         margin: 0;
@@ -91,6 +124,7 @@
 
 </style>
 <script>
+
     export default{
         data(){
             return {
@@ -118,7 +152,7 @@
             });
             this.$http.get("/message/" + room).then(function (resp) {
                 resp.body.forEach(function (item) {
-                    this.messages.push(item);
+                    this.putMessage(item);
                 }.bind(this));
             });
 
@@ -136,7 +170,7 @@
             });
 
             socket.on('message', function (message) {
-                this.messages.push(JSON.parse(message));
+                this.putMessage(JSON.parse(message));
             }.bind(this));
 
             CodeMirror.on(editor, 'change', function () {
@@ -157,13 +191,27 @@
         },
         components: {},
         methods: {
+            putMessage(message){
+                var data = new Identicon(message.uid, 30).toString();
+                message.identicon = 'data:image/png;base64,' + data;
+                this.messages.push(message);
+            },
+            scrollMessageListToBottom(){
+                var messageList = document.getElementById('message-list');
+                messageList.scrollTop = messageList.scrollHeight;
+            },
             submitMessage(){
                 this.socket.emit('message', this.tempMessage);
-                this.messages.push({
+                this.putMessage({
                     uid: this.uid,
                     message: this.tempMessage
                 });
                 this.tempMessage = "";
+            }
+        },
+        watch: {
+            'messages': function (val, oldVal) {
+                this.scrollMessageListToBottom();
             }
         }
     }

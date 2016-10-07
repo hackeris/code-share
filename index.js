@@ -55,6 +55,10 @@ app.get('/message/:room', function (req, res) {
   res.send(roomStore.getMessages(room));
 });
 
+app.get('/identicon/:id', function (req, res) {
+
+});
+
 app.get('/view/:room', function (req, res) {
   var room = req.params.room;
   if (roomStore.isActive(room)) {
