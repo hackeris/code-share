@@ -3,6 +3,9 @@
         <div id="code-container">
             <h3><span>房间编号：</span><span>{{ room }}</span></h3>
             <textarea id="editor"></textarea>
+            <button class="circle-button" id="show-message" @click="showMessage">
+                <img src="/public/images/ic_chat_black.png">
+            </button>
         </div>
         <div id="message-container">
             <h3><span>消息：</span></h3>
@@ -20,8 +23,12 @@
                 </li>
             </ul>
             <div id="new-message">
-                <input style="width: 100%;" v-model="tempMessage" v-on:keyup.13="submitMessage">
+                <input style="width: 100%;" v-model="tempMessage" v-on:keyup.13="submitMessage" placeholder="回车发送消息">
             </div>
+
+            <button class="circle-button" id="hide-message" @click="hideMessage">
+                <img src="/public/images/ic_clear_black.png">
+            </button>
         </div>
     </div>
 </template>
@@ -30,10 +37,15 @@
     #room-container {
         width: 80%;
         margin: 0 auto;
+        overflow: hidden;
+        height: 700px;
     }
 
     #code-container {
         width: 70%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
         float: left;
     }
 
@@ -41,6 +53,10 @@
         width: 30%;
         height: 100%;
         float: right;
+        background-color: white;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
     }
 
     h3 {
@@ -49,12 +65,13 @@
 
     #message-list {
         overflow: auto;
+        flex: 1;
     }
 
     ul {
         list-style: none;
-        height: 670px;
         border: 1px solid #cccccc;
+        border-left: none;
     }
 
     li {
@@ -84,8 +101,10 @@
     }
 
     #new-message {
+        padding: 0 5px;
         height: 28px;
-        border: 1px solid #cccccc;
+        border-right: 1px solid #cccccc;
+        border-bottom: 1px solid #cccccc;
     }
 
     #new-message > input {
@@ -95,31 +114,97 @@
         border-style: none;
     }
 
+    @media screen {
+        #show-message {
+            display: none;
+        }
+
+        #hide-message {
+            display: none;
+        }
+    }
+
     @media screen and (max-width: 600px) {
         #room-container {
+            position: absolute;
+            height: 100%;
             width: 100%;
         }
 
         #code-container {
+            position: absolute;
             width: 100%;
+            height: 100%;
         }
 
         #message-container {
-            width: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            display: none;
+        }
+
+        ul {
+            border-left: none;
+            border-right: none;
+        }
+
+        #new-message {
+            border: none;
         }
 
         h3 {
             font-size: 15px;
             margin: 10px;
         }
+
+        #show-message {
+            display: block;
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+        }
+
+        #hide-message {
+            display: block;
+            position: absolute;
+            right: 0;
+            top: 0;
+            border: none;
+            background: transparent;
+        }
+
+        .circle-button {
+            background-color: white;
+            color: white;
+            width: 40px;
+            border: 1px solid #cccccc;
+            height: 40px;
+            z-index: 100;
+            border-radius: 20px;
+        }
+
+        .circle-button > img {
+            padding: 8px 5px 5px;
+            height: 23px;
+            width: 23px;
+        }
     }
 
     .CodeMirror {
         padding: 0;
-        height: 700px;
+        flex: 1;
+        display: flex;
         border-right: solid 1px #cccccc;
         border-top: solid 1px #cccccc;
         border-bottom: solid 1px #cccccc;
+    }
+
+    .CodeMirror-scroll {
+        flex: 1;
+        height: auto;
+        -webkit-flex: 1;
     }
 
 </style>
@@ -207,6 +292,12 @@
                     message: this.tempMessage
                 });
                 this.tempMessage = "";
+            },
+            showMessage(){
+                document.getElementById('message-container').style.display = 'flex';
+            },
+            hideMessage(){
+                document.getElementById('message-container').style.display = 'none';
             }
         },
         watch: {
